@@ -212,6 +212,28 @@ app.post("/update-profile", upload.single("profile_pic"), (req, res) => {
   });
 });
 
+/* DELETE USER PROFILE */
+app.delete("/delete-user/:id", (req, res) => {
+  const userId = req.params.id;
+
+  db.query(
+    "DELETE FROM users WHERE id = ?",
+    [userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ success: false });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      res.json({ success: true });
+    }
+  );
+});
+
 
 /* ================= LEARNING CONTENT ================= */
 
