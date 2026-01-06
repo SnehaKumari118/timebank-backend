@@ -508,38 +508,6 @@ Type: ${fileType}
   }
 });
 
-app.get("/test-ai", async (req, res) => {
-  try {
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "meta-llama/llama-3.1-8b-instruct",
-          messages: [
-            { role: "user", content: "Say hello in one sentence." }
-          ]
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    res.json({
-      success: true,
-      ai_reply: data?.choices?.[0]?.message?.content || null
-    });
-
-  } catch (err) {
-    console.error("TEST AI ERROR:", err);
-    res.status(500).json({ success: false });
-  }
-});
-
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 8080;
