@@ -455,7 +455,7 @@ app.listen(PORT, () => {
 });
 
 /* ---------------- AI GENERATE (FREE) ---------------- */
-app.post("/generate-description", async (req, res) => {
+app.post("/upload-generate-description", async (req, res) => {
   const { title, fileType } = req.body;
 
   if (!title) {
@@ -470,21 +470,20 @@ app.post("/generate-description", async (req, res) => {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:5000",
+          "HTTP-Referer": "https://timebank-backend-zqhr.onrender.com",
           "X-Title": "TimeBank"
         },
         body: JSON.stringify({
-          model: "meta-llama/llama-3.1-8b-instruct", // FREE MODEL
+          model: "meta-llama/llama-3.1-8b-instruct",
           messages: [
             {
               role: "user",
               content: `
 Write ONLY the description text.
 DO NOT include explanations, headings, quotes, or phrases like "Here is".
-DO NOT mention "video learning resource" explicitly.
 
 Rules:
-- 2-3 sentences
+- 2–3 sentences
 - Beginner-friendly
 - Plain text only
 
@@ -502,16 +501,12 @@ Type: ${fileType}
     let description =
       data?.choices?.[0]?.message?.content || "";
 
-    // 🔒 Extra safety cleanup
     description = description
       .replace(/^(Here is|This is|Below is).*?:/i, "")
       .replace(/^["'\n]+|["'\n]+$/g, "")
       .trim();
 
-    res.json({
-      success: true,
-      description
-    });
+    res.json({ success: true, description });
 
   } catch (err) {
     console.error("AI Error:", err);
