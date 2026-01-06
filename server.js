@@ -8,14 +8,7 @@ const fs = require("fs");
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors({
-  origin: [
-    "http://localhost:5173",        // local React (Vite)
-    "http://localhost:3000",        // optional
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(cors());
 
 app.use(express.json());
 
