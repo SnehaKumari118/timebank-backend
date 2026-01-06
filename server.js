@@ -216,19 +216,29 @@ app.post("/update-profile", upload.single("profile_pic"), (req, res) => {
 app.delete("/delete-user/:id", (req, res) => {
   const userId = req.params.id;
 
-  db.query("DELETE FROM resources WHERE user_id = ?", [userId], err => {
-    if (err) return res.status(500).json({ success: false });
+  // 1️⃣ Delete learning resources
+  db.query("DELETE FROM learning_resources WHERE user_id = ?", [userId], err => {
+    if (err) return res.status(500).json({ success: false, step: "learning_resources" });
 
+    // 2️⃣ Delete services
     db.query("DELETE FROM services WHERE user_id = ?", [userId], err => {
-      if (err) return res.status(500).json({ success: false });
+      if (err) return res.status(500).json({ success: false, step: "services" });
 
-      db.query("DELETE FROM users WHERE id = ?", [userId], err => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true });
+      // 3️⃣ Delete contact messages
+      db.query("DELETE FROM contact_messages WHERE user_id = ?", [userId], err => {
+        if (err) return res.status(500).json({ success: false, step: "contact_messages" });
+
+        // 4️⃣ Finally delete user
+        db.query("DELETE FROM users WHERE id = ?", [userId], err => {
+          if (err) return res.status(500).json({ success: false, step: "users" });
+
+          res.json({ success: true });
+        });
       });
     });
   });
 });
+
 
 
 /* ================= LEARNING CONTENT ================= */
