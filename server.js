@@ -10,9 +10,9 @@ const fetch = (...args) =>
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.status(200).send("TimeBank backend running ✅");
@@ -448,12 +448,6 @@ app.delete("/delete-resource/:id/:userId", (req, res) => {
   );
 });
 
-/* ================= SERVER ================= */
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
-});
-
 /* ---------------- AI GENERATE (FREE) ---------------- */
 app.post("/upload-generate-description", async (req, res) => {
   const { title, fileType } = req.body;
@@ -512,4 +506,10 @@ Type: ${fileType}
     console.error("AI Error:", err);
     res.json({ success: false });
   }
+});
+
+/* ================= SERVER ================= */
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
