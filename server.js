@@ -5,11 +5,13 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
 app.use(cors());
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -450,4 +452,69 @@ app.delete("/delete-resource/:id/:userId", (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
+});
+
+/* ---------------- AI GENERATE (FREE) ---------------- */
+app.post("/generate-description", async (req, res) => {
+  const { title, fileType } = req.body;
+
+  if (!title) {
+    return res.json({ success: false, message: "Title required" });
+  }
+
+  try {
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "http://localhost:5000",
+          "X-Title": "TimeBank"
+        },
+        body: JSON.stringify({
+          model: "meta-llama/llama-3.1-8b-instruct", // FREE MODEL
+          messages: [
+            {
+              role: "user",
+              content: `
+Write ONLY the description text.
+DO NOT include explanations, headings, quotes, or phrases like "Here is".
+DO NOT mention "video learning resource" explicitly.
+
+Rules:
+- 2-3 sentences
+- Beginner-friendly
+- Plain text only
+
+Title: ${title}
+Type: ${fileType}
+`
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    let description =
+      data?.choices?.[0]?.message?.content || "";
+
+    // 🔒 Extra safety cleanup
+    description = description
+      .replace(/^(Here is|This is|Below is).*?:/i, "")
+      .replace(/^["'\n]+|["'\n]+$/g, "")
+      .trim();
+
+    res.json({
+      success: true,
+      description
+    });
+
+  } catch (err) {
+    console.error("AI Error:", err);
+    res.json({ success: false });
+  }
 });
