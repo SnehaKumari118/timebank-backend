@@ -15,9 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.status(200).send("TimeBank backend running ✅");
+  res.status(200).send("TimeBank backend running ");
 });
-
 
 /* ================= MOCK AI ================= */
 
@@ -71,8 +70,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 app.use("/uploads", express.static("uploads"));
 
-/* ================= AUTH ================= */
 
+/* ================= AUTH ================= */
 app.post("/register", (req, res) => {
   const { name, email, password } = req.body;
 
@@ -160,8 +159,6 @@ app.post("/login", (req, res) => {
   );
 });
 
-
-
 /* ================= PROFILE ================= */
 
 /* GET USER PROFILE */
@@ -216,19 +213,19 @@ app.post("/update-profile", upload.single("profile_pic"), (req, res) => {
 app.delete("/delete-user/:id", (req, res) => {
   const userId = req.params.id;
 
-  // 1️⃣ Delete learning resources
+  // Delete learning resources
   db.query("DELETE FROM learning_resources WHERE user_id = ?", [userId], err => {
     if (err) return res.status(500).json({ success: false, step: "learning_resources" });
 
-    // 2️⃣ Delete services
+    // Delete services
     db.query("DELETE FROM services WHERE user_id = ?", [userId], err => {
       if (err) return res.status(500).json({ success: false, step: "services" });
 
-      // 3️⃣ Delete contact messages
+      //  Delete contact messages
       db.query("DELETE FROM contact_messages WHERE user_id = ?", [userId], err => {
         if (err) return res.status(500).json({ success: false, step: "contact_messages" });
 
-        // 4️⃣ Finally delete user
+        //  Finally delete user
         db.query("DELETE FROM users WHERE id = ?", [userId], err => {
           if (err) return res.status(500).json({ success: false, step: "users" });
 
@@ -238,8 +235,6 @@ app.delete("/delete-user/:id", (req, res) => {
     });
   });
 });
-
-
 
 /* ================= LEARNING CONTENT ================= */
 
@@ -291,14 +286,12 @@ app.get("/resources", (req, res) => {
 });
 
 /* ================= SERVICES ================= */
-
 app.post("/service", (req, res) => {
   const { user_id, user_name, title, description, hours } = req.body;
 
   const sql = `
     INSERT INTO services (user_id, user_name, title, description, hours)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+    VALUES (?, ?, ?, ?, ?) `;
 
   db.query(sql, [user_id, user_name, title, description, hours], (err) => {
     if (err) return res.status(500).json({ error: "Database error" });
@@ -315,8 +308,6 @@ app.get("/services", (req, res) => {
     res.json(result);
   });
 });
-
-
 
 /* ================= CONTACT ================= */
 
@@ -353,8 +344,8 @@ app.post("/contact", (req, res) => {
   );
 });
 
+/* ================= My Srvices ================= */
 
-// My Srvices
 app.get("/my-services/:userId", (req, res) => {
   db.query(
     "SELECT * FROM services WHERE user_id=?",
@@ -362,8 +353,6 @@ app.get("/my-services/:userId", (req, res) => {
     (err, result) => res.json(result || [])
   );
 });
-
-
 
 app.put("/service/:id", (req, res) => {
   const { title, description, hours, user_id } = req.body;
@@ -394,8 +383,6 @@ app.put("/service/:id", (req, res) => {
   );
 });
 
-
-
 app.delete("/service/:id", (req, res) => {
   db.query(
     "DELETE FROM services WHERE id=?",
@@ -407,8 +394,7 @@ app.delete("/service/:id", (req, res) => {
   );
 });
 
-
-/* MY RESOURCES */
+/* ================= MY RESOURCES ================= */
 app.get("/my-resources/:userId", (req, res) => {
   const { userId } = req.params;
 
@@ -425,11 +411,7 @@ app.get("/my-resources/:userId", (req, res) => {
   );
 });
 
-
-
-
-
-/* UPDATE RESOURCE */
+/* ================= UPDATE RESOURCE ================= */
 app.put("/update-resource/:id", (req, res) => {
   const { title, description, userId } = req.body;
   const { id } = req.params;
@@ -447,9 +429,7 @@ app.put("/update-resource/:id", (req, res) => {
   );
 });
 
-
-
-//Delete resouces
+/* ================= Delete resouces ================= */
 app.delete("/delete-resource/:id/:userId", (req, res) => {
   const { id, userId } = req.params;
 
@@ -476,7 +456,7 @@ app.delete("/delete-resource/:id/:userId", (req, res) => {
   );
 });
 
-/* ---------------- AI GENERATE (FREE) ---------------- */
+/* ---------------- AI GENERATE ---------------- */
 app.post("/upload-generate-description", async (req, res) => {
   const { title, fileType } = req.body;
 
@@ -505,7 +485,7 @@ Write ONLY the description text.
 DO NOT include explanations, headings, quotes, or phrases like "Here is".
 
 Rules:
-- 2–3 sentences
+- 1-2 sentences
 - Beginner-friendly
 - Plain text only
 
@@ -535,7 +515,6 @@ Type: ${fileType}
     res.json({ success: false });
   }
 });
-
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 8080;
